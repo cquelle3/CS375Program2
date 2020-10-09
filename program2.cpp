@@ -61,9 +61,9 @@ void contestExtHeap::insertContestant(int k, int s){
     }
     else{
 
-        get<0>(this->heap[k]) = k;
-        get<1>(this->heap[k]) = s;
-        this->handle[k] = k;   
+        get<0>(this->heap[this->num_elements+1]) = k;
+        get<1>(this->heap[this->num_elements+1]) = s;
+        this->handle[k] = this->num_elements+1;   
         
         this->num_elements++;
         
@@ -126,26 +126,43 @@ void contestExtHeap::eliminateWeakest(){
         this->num_elements--;
         
         /////////////////////////////////////////////////////////////////////////////
-        int i = this->num_elements;
+        //int i = this->num_elements;
+        int i = 1;
         
-        while((i > 1) && (get<1>(this->heap[int(floor(i / 2))]) > get<1>(this->heap[i]))){
+        //while((i > 1) && (get<1>(this->heap[int(floor(i / 2))]) > get<1>(this->heap[i]))){
+        while((i < this->num_elements+1) && ((get<1>(this->heap[2*i])) < get<1>(this->heap[i]) || (get<1>(this->heap[(2*i)+1])) < get<1>(this->heap[i]))){
             
+            int left = get<1>(this->heap[2*i]);
+            int right = get<1>(this->heap[(2*i) + 1]);
+            int child;
+            if(left <= right){
+                child = 2*i;
+            }
+            else{
+                child = (2*i) + 1;
+            }
+        
             //i info
             tuple<int, int> temp_i = this->heap[i];
             int temp_i_loc = this->handle[get<0>(this->heap[i])];
             
             //parent info
-            tuple<int, int> temp_parent = this->heap[int(floor(i / 2))];
-            int temp_parent_loc = this->handle[get<0>(this->heap[int(floor(i / 2))])];
+            //tuple<int, int> temp_parent = this->heap[int(floor(i / 2))];
+            //int temp_parent_loc = this->handle[get<0>(this->heap[int(floor(i / 2))])];
+            tuple<int, int> temp_parent = this->heap[child];
+            int temp_parent_loc = this->handle[get<0>(this->heap[child])];
             
             //exchange info
-            this->heap[int(floor(i / 2))] = temp_i;
-            this->handle[get<0>(this->heap[int(floor(i / 2))])] = temp_i_loc;
+            //this->heap[int(floor(i / 2))] = temp_i;
+            //this->handle[get<0>(this->heap[int(floor(i / 2))])] = temp_i_loc;
+            this->heap[child] = temp_i;
+            this->handle[get<0>(this->heap[child])] = temp_parent_loc;//temp_i_loc;
             
             this->heap[i] = temp_parent;
-            this->handle[get<0>(this->heap[i])] = temp_parent_loc;
+            this->handle[get<0>(this->heap[i])] = temp_i_loc;//temp_parent_loc;
             
-            i = int(floor(i / 2));
+            //i = int(floor(i / 2));
+            i = child;
         }
         
         cout << "Contestant <" << get<0>(min) << "> with current lowest score <" << get<1>(min) << "> eliminated." << endl;
@@ -160,28 +177,37 @@ void contestExtHeap::earnPoints(int k, int p){
         
         get<1>(this->heap[this->handle[k]]) = get<1>(this->heap[this->handle[k]]) + p;
         
+        int i = 1;
         
-        ///////////////////////////////////////////////////////////////
-        int i = this->num_elements;
-        
-        while((i > 1) && (get<1>(this->heap[int(floor(i / 2))]) > get<1>(this->heap[i]))){
+        //while((i > 1) && (get<1>(this->heap[int(floor(i / 2))]) > get<1>(this->heap[i]))){
+        while((i < this->num_elements) && ((get<1>(this->heap[2*i])) < get<1>(this->heap[i]) || (get<1>(this->heap[(2*i)+1])) < get<1>(this->heap[i]))){
             
+            int left = get<1>(this->heap[2*i]);
+            int right = get<1>(this->heap[(2*i) + 1]);
+            int child;
+            if(left <= right){
+                child = 2*i;
+            }
+            else{
+                child = (2*i) + 1;
+            }
+        
             //i info
             tuple<int, int> temp_i = this->heap[i];
             int temp_i_loc = this->handle[get<0>(this->heap[i])];
             
             //parent info
-            tuple<int, int> temp_parent = this->heap[int(floor(i / 2))];
-            int temp_parent_loc = this->handle[get<0>(this->heap[int(floor(i / 2))])];
+            tuple<int, int> temp_parent = this->heap[child];
+            int temp_parent_loc = this->handle[get<0>(this->heap[child])];
             
             //exchange info
-            this->heap[int(floor(i / 2))] = temp_i;
-            this->handle[get<0>(this->heap[int(floor(i / 2))])] = temp_parent_loc;
+            this->heap[child] = temp_i;
+            this->handle[get<0>(this->heap[child])] = temp_parent_loc;//temp_i_loc;
             
             this->heap[i] = temp_parent;
-            this->handle[get<0>(this->heap[i])] = temp_i_loc;
+            this->handle[get<0>(this->heap[i])] = temp_i_loc;//temp_parent_loc;
             
-            i = int(floor(i / 2));
+            i = child;
         }
 
         cout << "Contestant <" << k << ">’s score increased by <" << p << "> points to <" << get<1>(this->heap[this->handle[k]]) << ">." << endl;
@@ -195,28 +221,38 @@ void contestExtHeap::losePoints(int k, int p){
     else{
         
         get<1>(this->heap[this->handle[k]]) = get<1>(this->heap[this->handle[k]]) - p;
+    
+        int i = 1;
         
-        ////////////////////////////////////////////////////////////////////////////
-        int i = this->num_elements;
-        
-        while((i > 1) && (get<1>(this->heap[int(floor(i / 2))]) > get<1>(this->heap[i]))){
+        //while((i > 1) && (get<1>(this->heap[int(floor(i / 2))]) > get<1>(this->heap[i]))){
+        while((i < this->num_elements) && ((get<1>(this->heap[2*i])) < get<1>(this->heap[i]) || (get<1>(this->heap[(2*i)+1])) < get<1>(this->heap[i]))){
             
+            int left = get<1>(this->heap[2*i]);
+            int right = get<1>(this->heap[(2*i) + 1]);
+            int child;
+            if(left <= right){
+                child = 2*i;
+            }
+            else{
+                child = (2*i) + 1;
+            }
+        
             //i info
             tuple<int, int> temp_i = this->heap[i];
             int temp_i_loc = this->handle[get<0>(this->heap[i])];
             
             //parent info
-            tuple<int, int> temp_parent = this->heap[int(floor(i / 2))];
-            int temp_parent_loc = this->handle[get<0>(this->heap[int(floor(i / 2))])];
+            tuple<int, int> temp_parent = this->heap[child];
+            int temp_parent_loc = this->handle[get<0>(this->heap[child])];
             
             //exchange info
-            this->heap[int(floor(i / 2))] = temp_i;
-            this->handle[get<0>(this->heap[int(floor(i / 2))])] = temp_parent_loc;
+            this->heap[child] = temp_i;
+            this->handle[get<0>(this->heap[child])] = temp_parent_loc;//temp_i_loc;
             
             this->heap[i] = temp_parent;
-            this->handle[get<0>(this->heap[i])] = temp_i_loc;
+            this->handle[get<0>(this->heap[i])] = temp_i_loc;//temp_parent_loc;
             
-            i = int(floor(i / 2));
+            i = child;
         }
         
         cout << "Contestant <" << k << ">’s score decreased by <" << p << "> points to <" << get<1>(this->heap[this->handle[k]]) << ">." << endl;
@@ -293,9 +329,8 @@ void contestExtHeap::crownWinner(){
         }
     }
     
-    this->handle[get<0>(this->heap[1])] = 1;
-    
     cout << "Contestant <" << get<0>(this->heap[1]) << "> wins with score <" << get<1>(this->heap[1]) << ">!" << endl;
+
 }
 
 void contestExtHeap::showLocation(int k){
